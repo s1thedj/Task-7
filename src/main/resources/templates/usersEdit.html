@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EditUser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e8d8f4; /* Легкий фиолетовый фон */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #6a2c8c; /* Тёмно-пурпурный цвет для заголовка */
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #6a2c8c; /* Тёмно-пурпурный цвет для меток */
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="email"] {
+            padding: 10px;
+            border: 1px solid #b38cd8; /* Светло-пурпурная обводка */
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        input[type="text"]:focus, input[type="email"]:focus {
+            border-color: #9b4d96; /* Пурпурный цвет при фокусе */
+            outline: none;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #9b4d96; /* Пурпурный цвет для кнопки */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #7a2e73; /* Тёмно-пурпурный цвет при наведении */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .roles-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .roles-group label {
+            color: #6a2c8c;
+            font-size: 16px;
+        }
+
+        .roles-group input {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Edit User</h1>
+    <form th:action="@{/admin/edit/{id}(id=${user.id})}" th:object="${user}" method="post">
+        <input type="hidden" th:field="*{id}" />
+        <div class="form-group">
+            <label for="name">First Name:</label>
+            <input type="text" id="name" th:field="*{username}" />
+        </div>
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" th:field="*{lastName}" />
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" th:field="*{email}" />
+        </div>
+        <div class="form-group">
+            <label for="password">Password::</label>
+            <input type="text" id="password" th:field="*{password}" />
+        </div>
+        <div class="form-group roles-group">
+            <label>Roles:</label>
+            <input type="checkbox" th:field="*{roles}" value="1" /> Admin
+            <input type="checkbox" th:field="*{roles}" value="2" /> User
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+</body>
+</html>

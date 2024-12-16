@@ -1,11 +1,93 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
-    <title>Spring Security Example</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1e6f3; /* Легкий фиолетовый фон */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            padding-top: 50px;
+        }
+
+        .container {
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #9b4d96; /* Тёмно-пурпурный цвет для заголовка */
+        }
+
+        p {
+            font-size: 16px;
+            margin: 10px 0;
+            color: #555;
+        }
+
+        span {
+            font-weight: bold;
+            color: #9b4d96; /* Пурпурный цвет для выделенного текста */
+        }
+
+        .logout {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .logout a {
+            font-size: 16px;
+            color: #9b4d96; /* Пурпурный цвет для ссылки на выход */
+            text-decoration: none;
+        }
+
+        .logout a:hover {
+            text-decoration: underline;
+        }
+
+        .user-info {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .user-info p {
+            font-size: 18px;
+            color: #333;
+        }
+
+    </style>
 </head>
 <body>
-<h1>User, welcome spring boot security page!</h1>
+<div class="logout">
+    <a th:href="@{/logout}">Logout</a>
+</div>
 
-
+<div class="container">
+    <h1>User Profile</h1>
+    <div class="user-info">
+        <p>ID: <span th:text="${user.id}">[ID]</span></p>
+        <p>Name: <span th:text="${user.username}">[Name]</span></p>
+        <p>Email: <span th:text="${user.email}">[Email]</span></p>
+    </div>
+</div>
 </body>
 </html>
