@@ -29,7 +29,7 @@ public class SuccessUserHandler implements AuthenticationSuccessHandler {
             httpServletResponse.sendRedirect("/admin");
         } else if (roles.contains("ROLE_USER")) {
             System.out.println("REDIRECTING USER");
-            httpServletResponse.sendRedirect("/user/"+id);
+            httpServletResponse.sendRedirect("/user?id="+id);
         } else {
             System.err.println("No matching role found");
         }

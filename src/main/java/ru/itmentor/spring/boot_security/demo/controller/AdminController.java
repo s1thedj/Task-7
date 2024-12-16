@@ -1,86 +1,96 @@
 package ru.itmentor.spring.boot_security.demo.controller;
 
+
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
+
+
+
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.itmentor.spring.boot_security.demo.DTO.UserDTO;
 import ru.itmentor.spring.boot_security.demo.model.Role;
 import ru.itmentor.spring.boot_security.demo.model.User;
-import ru.itmentor.spring.boot_security.demo.repository.UserRepository;
+
 import ru.itmentor.spring.boot_security.demo.service.RoleService;
 import ru.itmentor.spring.boot_security.demo.service.UserService;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequestMapping("/admin")
 
 public class AdminController {
 
     @Autowired
+    private final ModelMapper modelMapper;
+    @Autowired
     private UserService userService;
     @Autowired
     private RoleService roleService;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    public AdminController(PasswordEncoder passwordEncoder) {
+    public AdminController(ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
+        this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping
-    public String users(Model model) {
-        List<User> users = userService.findAll();
-        model.addAttribute("users", users);
-        return "users";
+    public List<UserDTO> users() {
+        List<UserDTO> users = new ArrayList<>();
+        for (User user : userService.findAll()) {
+            users.add(convertToUserDTO(user));
+        }
+        return users;
     }
 
     @PostMapping
-    public String addUser(@ModelAttribute User user) {
-        System.out.println("Received user: " + user);
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-        userService.create(user);
-        return "redirect:/admin";
+    public ResponseEntity<HttpStatus> addUser(@RequestBody UserDTO userDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else {
+            User user = convertToUser(userDTO);
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
+            Set<Role> roles = userDTO.getRoles().stream()
+                    .map(roleName -> roleService.getRoleByName(roleName))
+                    .collect(Collectors.toSet());
+            user.setRoles(roles);
+            userService.create(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(HttpStatus.CREATED);
+        }
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") long id) {
+    @DeleteMapping("/delete")
+    public String deleteUser(@RequestParam(value = "id") long id) {
         userService.delete(id);
-        return "redirect:/admin";
+        return "Deleted user with id: " + id;
     }
 
-    @GetMapping("/edit/{id}")
-    public String editUser(@PathVariable("id") long id, ModelMap model, HashSet<String> roles) {
-        Set<Role> roleSet = new HashSet<>();
-        if (roles != null) {
-            for (String roleName : roles) {
-                switch (roleName) {
-                    case "ROLE_ADMIN":
-                        roleSet.add(roleService.getRoleByName(roleName));
-                        break;
-                    case "ROLE_USER":
-                        roleSet.add(roleService.getRoleByName(roleName));
-                        break;
-                }
-            }
-        }
-        User user = userService.findById(id).orElse(null);
-        if (user != null) {
-            user.setRoles(roleSet);
-        }
-        model.addAttribute("user", user);
-        return "usersEdit";
-    }
 
-    @PostMapping("/edit/{id}")
-    public String updateUser(@ModelAttribute("user") User user) {
+    @PatchMapping("/edit")
+    public String updateUser(@RequestBody UserDTO userDTO, @RequestParam(value = "id") long id) {
+        User user = convertToUser(userDTO);
+        Set<Role> roles = userDTO.getRoles().stream()
+                .map(roleName -> roleService.getRoleByName(roleName))
+                .collect(Collectors.toSet());
+        user.setRoles(roles);
+        user.setId(id);
         userService.create(user);
-        return "redirect:/admin";
+        return "Updated user with id: " + id;
+    }
+
+    private User convertToUser(UserDTO userDTO) {
+        return modelMapper.map(userDTO, User.class);
+    }
+
+    private UserDTO convertToUserDTO(User user) {
+        return modelMapper.map(user, UserDTO.class);
     }
 }
